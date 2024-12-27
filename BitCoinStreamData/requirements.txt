@@ -1,0 +1,9 @@
+google-cloud-firestore
+google-cloud-storage
+google-cloud-pubsub
+websockets
+python-dotenv
+apache_beam
+google-cloud-bigquery
+datetime
+firebase-admin

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickstart-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quickstart
+  template:
+    metadata:
+      labels:
+        app: quickstart
+    spec:
+      containers:
+        - name: quickstart
+          image: us-west2-docker.pkg.dev/bitcoinstream/quickstart-docker-repo/quickstart-image:tag1
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /path/in/container
+              name: google-cloud-key
+              subPath: credentials.json
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: google-cloud-key

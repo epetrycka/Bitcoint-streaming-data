@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: node-metrics-printer-namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-metrics-printer-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes/metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-metrics-printer-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-metrics-printer-role
+subjects:
+- kind: ServiceAccount
+  name: node-metrics-printer-sa
+  namespace: node-metrics-printer-namespace
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-metrics-printer-sa
+  namespace: node-metrics-printer-namespace
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-metrics-printer
+  namespace: node-metrics-printer-namespace
+spec:
+  selector:
+    matchLabels:
+      app: node-metrics-printer
+  template:
+    metadata:
+      labels:
+        app: node-metrics-printer
+    spec:
+      serviceAccountName: node-metrics-printer-sa
+      containers:
+      - name: metrics-printer
+        image: us-docker.pkg.dev/cloud-builders/ga/v1/curl:latest
+        command: ["sh", "-c"]
+        args:
+        - 'while true; do curl -s --cacert "${CA_CERT}" -H "Authorization: Bearer $(cat ${TOKEN_FILE})" "https://${NODE_ADDRESS}:10250/metrics"|grep kubelet_http_requests_total; sleep 20; done'
+        env:
+        - name: CA_CERT
+          value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - name: TOKEN_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token
+        - name: NODE_ADDRESS
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP

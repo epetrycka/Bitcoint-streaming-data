@@ -1,0 +1,42 @@
+"type" : "depth"
+"data" : 
+{
+  "e": "depthUpdate",  // Typ zdarzenia
+  "E": 1678890000000,  // Czas zdarzenia (timestamp)
+  "s": "BTCUSDT",      // Symbol (rynek, np. BTC/USDT)
+  "b": [               // Zaktualizowane zlecenia kupna (bid)
+    ["30000.50", "1.25"],  // Cena, ilość
+    ["29999.90", "0.00"]   // Ilość 0 oznacza, że zlecenie zostało usunięte
+  ],
+  "a": [               // Zaktualizowane zlecenia sprzedaży (ask)
+    ["30001.00", "0.50"],
+    ["30002.00", "2.00"]
+  ]
+}
+
+"type" : "trade"
+"data" : 
+{
+  "e": "trade",          // Typ zdarzenia
+  "E": 1678890500000,    // Czas zdarzenia (timestamp, w milisekundach)
+  "s": "BTCUSDT",        // Symbol (rynek, np. BTC/USDT)
+  "t": 123456789,        // Unikalny identyfikator transakcji
+  "p": "30000.50",       // Cena transakcji
+  "q": "0.001",          // Ilość transakcji (w BTC)
+  "b": 88,               // ID zlecenia kupującego (bid order ID)
+  "a": 50,               // ID zlecenia sprzedającego (ask order ID)
+  "T": 1678890500000,    // Czas realizacji transakcji (timestamp, w milisekundach)
+  "m": true,             // Czy zlecenie kupna było pasywne (market taker)
+  "M": true              // Ignoruj (zawsze true)
+}
+
+"output" :
+{
+    "symbol": "BTCUSDT",
+    "last_price": 30050.00,
+    "avg_bid": 30000.00,
+    "avg_ask": 30100.00,
+    "spread": 100.00,
+    "timestamp": 1678890000000
+  }
+  
