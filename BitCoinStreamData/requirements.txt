@@ -3,7 +3,6 @@ google-cloud-storage
 google-cloud-pubsub
 websockets
 python-dotenv
-apache_beam
+apache-beam[gcp]
 google-cloud-bigquery
-datetime
 firebase-admin

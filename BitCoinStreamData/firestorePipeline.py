@@ -8,7 +8,7 @@ from google.cloud import pubsub_v1, firestore
 import json
 from typing import Dict, Tuple, List
 import argparse
-import datetime
+import time
 import firebase_admin
 from firebase_admin import firestore, credentials
 
@@ -62,14 +62,14 @@ if __name__ == "__main__":
     @beam.typehints.with_input_types(Dict)
     @beam.typehints.with_output_types(Tuple[str, List[float]])
     def extract(element: Dict) -> Tuple[str, List[float]]:
+        import time
         data = element['data']
         timestamp = data['E']
         price = data['p']
         quantity = data['q']
 
         timestamp_s = timestamp / 1000.0
-        dt_object = datetime.datetime.fromtimestamp(timestamp_s)
-        formatted_date = dt_object.strftime("%d-%m-%Y_%H:%M")
+        formatted_date = time.strftime("%d-%m-%Y_%H:%M", time.gmtime(timestamp_s))
 
         return (formatted_date, [float(price), float(quantity)])
     
@@ -82,10 +82,18 @@ if __name__ == "__main__":
     
     class FirestoreWriteDoFn(beam.DoFn):
         def start_bundle(self):
+            import firebase_admin
+            from firebase_admin import firestore, credentials
             self.client = firestore.Client()
 
         @beam.typehints.with_input_types(Tuple[str, List[float]])
         def process(self, element: Tuple[str, List[float]]):
+            import firebase_admin
+            from firebase_admin import firestore, credentials
+            collection_name = "test"
+
+            db = firestore.Client(project='bitcoinstream')
+
             key, value = element
             date, hour = key.split('_')
 
@@ -155,8 +163,9 @@ if __name__ == "__main__":
                             project='bitcoinstream',
                             region='europe-central2',
                             temp_location='gs://bitcoin-test/temp',
-                            staging_location='gs://bitcoin-test/staging')
-    #options = PipelineOptions(streaming=True)
+                            staging_location='gs://bitcoin-test/staging',
+                            requirements_file='requirements.txt')
+    # options = PipelineOptions(streaming=True)
     options.view_as(WorkerOptions).max_num_workers = 2
     p =beam.Pipeline(options=options)
 
